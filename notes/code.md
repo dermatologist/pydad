@@ -79,3 +79,32 @@
     print("Projected \n")
     print(projected)
 ```
+
+```python
+
+   # like_f = F.udf(lambda col: True if 'ICDF' in col else False, BooleanType())
+    # df.filter(like_f()).select().show(5)
+
+    # df.show(5)
+    # df.select("ICDF176").show(5)
+
+    # vector_udf = F.udf(lambda vector: vector.toArray().tolist(), ArrayType(DoubleType()))
+    #
+    # df = df.withColumn("morbidities", F.array("D_I10_1", "D_I10_2", "D_I10_3"))
+    # df = df.withColumn("treatments", F.array("I_CCI_1", "I_CCI_2", "I_CCI_3"))
+    #
+    # mindexer = CountVectorizer(inputCol="morbidities", outputCol="morbidityIndex")
+    # tindexer = CountVectorizer(inputCol="treatments", outputCol="treatmentIndex")
+    #
+    # pipeline = Pipeline().setStages([mindexer, tindexer])
+    # transformedDf = pipeline.fit(df).transform(df) \
+    #     .select("AGRP_F_D", "GENDER", "WGHT_GRP",
+    #             vector_udf('morbidityIndex').alias('morbidityIndex'),
+    #             vector_udf('treatmentIndex').alias('treatmentIndex'))
+    # # to_print = transformedDf.collect()
+    # # print(to_print)
+    # sqlContext.clearCache()
+    #
+    # transformedDf.show(3)
+
+```
