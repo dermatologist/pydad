@@ -108,3 +108,47 @@
     # transformedDf.show(3)
 
 ```
+
+
+```python
+    # labelIndexer = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(df)
+    #
+    # featureIndexer = \
+    #     VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
+    #
+    # # Split the data into training and test sets (30% held out for testing)
+    # (trainingData, testData) = df.randomSplit([0.7, 0.3])
+    #
+    # # Train a RandomForest model.
+    # rf = RandomForestClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures", numTrees=10)
+    #
+    # # Convert indexed labels back to original labels.
+    # labelConverter = IndexToString(inputCol="prediction", outputCol="predictedLabel",
+    #                                labels=labelIndexer.labels)
+    #
+    # # Chain indexers and forest in a Pipeline
+    # pipeline = Pipeline(stages=[labelIndexer, featureIndexer, rf, labelConverter])
+    #
+    # # Train model.  This also runs the indexers.
+    # model = pipeline.fit(trainingData)
+    #
+    # # Make predictions.
+    # predictions = model.transform(testData)
+    #
+    # # Select example rows to display.
+    # predictions.select("predictedLabel", "label", "features").show(5)
+    #
+    # # Select (prediction, true label) and compute test error
+    # evaluator = MulticlassClassificationEvaluator(
+    #     labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
+    # accuracy = evaluator.evaluate(predictions)
+    # print("Test Error = %g" % (1.0 - accuracy))
+    #
+    # rfModel = model.stages[2]
+    # print(rfModel)  # summary only
+    # # $example off$
+
+
+
+    # df.select(df.columns[154:]).show(5)
+```

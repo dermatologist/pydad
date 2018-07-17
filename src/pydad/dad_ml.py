@@ -23,9 +23,9 @@ from pyspark.ml.feature import IndexToString, StringIndexer, VectorIndexer
 
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
+# This is not recongnized by IntelliJ!, but still works.
 from pyspark.sql.functions import col
 
-# http://jarrettmeyer.com/2017/05/04/random-forests-with-pyspark
 def main():
     _logger = logging.getLogger(__name__)
     findspark.init(ConfigParams.__SPARK_HOME__)
@@ -39,47 +39,8 @@ def main():
         ConfigParams.__DAD_PATH__, header=True, mode="DROPMALFORMED"
     )
 
-    # labelIndexer = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(df)
-    #
-    # featureIndexer = \
-    #     VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
-    #
-    # # Split the data into training and test sets (30% held out for testing)
-    # (trainingData, testData) = df.randomSplit([0.7, 0.3])
-    #
-    # # Train a RandomForest model.
-    # rf = RandomForestClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures", numTrees=10)
-    #
-    # # Convert indexed labels back to original labels.
-    # labelConverter = IndexToString(inputCol="prediction", outputCol="predictedLabel",
-    #                                labels=labelIndexer.labels)
-    #
-    # # Chain indexers and forest in a Pipeline
-    # pipeline = Pipeline(stages=[labelIndexer, featureIndexer, rf, labelConverter])
-    #
-    # # Train model.  This also runs the indexers.
-    # model = pipeline.fit(trainingData)
-    #
-    # # Make predictions.
-    # predictions = model.transform(testData)
-    #
-    # # Select example rows to display.
-    # predictions.select("predictedLabel", "label", "features").show(5)
-    #
-    # # Select (prediction, true label) and compute test error
-    # evaluator = MulticlassClassificationEvaluator(
-    #     labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
-    # accuracy = evaluator.evaluate(predictions)
-    # print("Test Error = %g" % (1.0 - accuracy))
-    #
-    # rfModel = model.stages[2]
-    # print(rfModel)  # summary only
-    # # $example off$
 
-
-
-    # df.select(df.columns[154:]).show(5)
-
+    # This needs to be ultimately used in transformed_df
     tlos = df.select(df.columns[154:155])
     morbidity = df.select(df.columns[161:])
 
@@ -89,10 +50,13 @@ def main():
     RF_MAX_DEPTH = 4
     RF_MAX_BINS = 32
 
+    # String type converted to float type.
     df = df.select(*(col(c).cast("float").alias(c) for c in df.columns))
 
+    # Change all NA to 0
     df = df.na.fill(0)
 
+    # This needs to be changed.
     transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[-1], Vectors.dense(row[5:-1])))
 
     splits = [TRAINING_DATA_RATIO, 1.0 - TRAINING_DATA_RATIO]
@@ -103,6 +67,7 @@ def main():
 
     start_time = time()
 
+    # categoricalFeaturesInfo={} means continuous variables. This needs to be changed too.
     model = RandomForest.trainClassifier(training_data, numClasses=2, categoricalFeaturesInfo={}, \
                                          numTrees=RF_NUM_TREES, featureSubsetStrategy="auto", impurity="gini", \
                                          maxDepth=RF_MAX_DEPTH, maxBins=RF_MAX_BINS, seed=RANDOM_SEED)
