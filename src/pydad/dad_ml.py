@@ -29,8 +29,8 @@ from pyspark.sql.functions import col
 def main():
     _logger = logging.getLogger(__name__)
     findspark.init(ConfigParams.__SPARK_HOME__)
-    SparkContext.setSystemProperty('spark.executor.memory', '4g')
-    SparkContext.setSystemProperty('spark.driver.memory', '4g')
+    SparkContext.setSystemProperty('spark.executor.memory', '48g')
+    SparkContext.setSystemProperty('spark.driver.memory', '6g')
 
     sc = SparkContext(appName='SparkTest', master=ConfigParams.__MASTER_UI__)
     sqlContext = SQLContext(sc)
@@ -44,11 +44,17 @@ def main():
     tlos = df.select(df.columns[154:155])
     morbidity = df.select(df.columns[161:])
 
+    # morbidity_columns = morbidity.schema.names
+    # tlos_column = 'TLOS_CAT'
+    #
+    # print(morbidity_columns)
+    # tlos.show(5)
+
     RANDOM_SEED = 13579
     TRAINING_DATA_RATIO = 0.7
     RF_NUM_TREES = 3
     RF_MAX_DEPTH = 4
-    RF_MAX_BINS = 32
+    RF_MAX_BINS = 12
 
     # String type converted to float type.
     df = df.select(*(col(c).cast("float").alias(c) for c in df.columns))
@@ -57,7 +63,7 @@ def main():
     df = df.na.fill(0)
 
     # This needs to be changed.
-    transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[-1], Vectors.dense(row[5:-1])))
+    transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[0], Vectors.dense(row[5:-1])))
 
     splits = [TRAINING_DATA_RATIO, 1.0 - TRAINING_DATA_RATIO]
     training_data, test_data = transformed_df.randomSplit(splits, RANDOM_SEED)
@@ -68,8 +74,16 @@ def main():
     start_time = time()
 
     # categoricalFeaturesInfo={} means continuous variables. This needs to be changed too.
-    model = RandomForest.trainClassifier(training_data, numClasses=2, categoricalFeaturesInfo={}, \
-                                         numTrees=RF_NUM_TREES, featureSubsetStrategy="auto", impurity="gini", \
+    # in pyspark you would need a syntax like this n:m , where n is the column,
+    # and m is the number of categories minus 1,
+    # and you can have multiple columns with categorical variables
+    # each seperated with a comma.
+    # Spark use MaxBins to specify a feature is categorical or continuous.
+    # If the number of distinct values <= MaxBins, it is categorical.
+    # TLOS MAX = 10 with 6 distinct classes
+    model = RandomForest.trainClassifier(training_data, numClasses=11,
+                                         categoricalFeaturesInfo={},
+                                         numTrees=RF_NUM_TREES, featureSubsetStrategy="auto", impurity="gini",
                                          maxDepth=RF_MAX_DEPTH, maxBins=RF_MAX_BINS, seed=RANDOM_SEED)
 
     end_time = time()
