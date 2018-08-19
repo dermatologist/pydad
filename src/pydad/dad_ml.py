@@ -9,7 +9,7 @@ from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.tree import RandomForest
 from pyspark.sql import SQLContext
-# This is not recongnized by IntelliJ!, but still works.
+# This is not recognized by IntelliJ!, but still works.
 from pyspark.sql.functions import col
 
 from src.pydad import __version__
@@ -29,10 +29,11 @@ def main():
         ConfigParams.__DAD_PATH__, header=True, mode="DROPMALFORMED"
     )
 
-
-    # This needs to be ultimately used in transformed_df
-    tlos = df.select(df.columns[154:155])
-    morbidity = df.select(df.columns[161:])
+    # CHANGE THIS for model refinement
+    # tlos = df.select(df.columns[154:155]) # For reference only
+    # morbidity = df.select(df.columns[161:]) # For reference only
+    # df.select([c for c in df.columns if c in ['TLOS_CAT', 'COLNAME', 'COLNAME']]).show()
+    # transformed_df = df.rdd.map(lambda row: LabeledPoint(row[0], Vectors.dense(row[1:-1])))
 
     RANDOM_SEED = 13579
     TRAINING_DATA_RATIO = 0.7
@@ -46,8 +47,9 @@ def main():
     # Change all NA to 0
     df = df.na.fill(0)
 
-    # This needs to be changed.
-    transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[0], Vectors.dense(row[5:-1])))
+    # This needs to be CHANGED AS ABOVE.
+    # row[7:-1] 7 here is 161 - 154 (154 is TLOS and 161 is the index of morbidities devived variables)
+    transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[0], Vectors.dense(row[7:-1])))
 
     print(transformed_df.take(5))
 
@@ -97,6 +99,7 @@ def main():
 
 def myConcat(*cols):
     return F.concat(*[F.coalesce(c, F.lit("*")) for c in cols])
+
 
 if __name__ == '__main__':  # if we're running file directly and not importing it
     main()  # run the main function
