@@ -152,3 +152,29 @@
 
     # df.select(df.columns[154:]).show(5)
 ```
+
+## Redundant imports
+
+```python
+from pyspark.ml import Pipeline
+from pyspark.ml.feature import CountVectorizer
+
+from pyspark.sql.types import *
+
+from pyspark.ml.classification import RandomForestClassifier
+
+from pyspark.ml.feature import IndexToString, StringIndexer, VectorIndexer
+
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+
+
+
+    # morbidity_columns = morbidity.schema.names
+    # tlos_column = 'TLOS_CAT'
+    #
+    # print(morbidity_columns)
+    # tlos.show(5)
+
+
+
+```

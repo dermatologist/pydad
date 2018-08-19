@@ -1,30 +1,20 @@
 import logging
+from time import *
 
 import findspark
 import pyspark.sql.functions as F
 from pyspark import SparkContext
-from pyspark.ml import Pipeline
-from pyspark.ml.feature import CountVectorizer
+from pyspark.mllib.evaluation import BinaryClassificationMetrics
+from pyspark.mllib.linalg import Vectors
+from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.tree import RandomForest
 from pyspark.sql import SQLContext
-from pyspark.sql.types import *
+# This is not recongnized by IntelliJ!, but still works.
+from pyspark.sql.functions import col
 
 from src.pydad import __version__
 from src.pydad.conf import ConfigParams
 
-from pyspark.mllib.linalg import Vectors
-from pyspark.mllib.regression import LabeledPoint
-
-from pyspark.mllib.tree import RandomForest
-from time import *
-from pyspark.mllib.evaluation import BinaryClassificationMetrics
-from pyspark.ml.classification import RandomForestClassifier
-
-from pyspark.ml.feature import IndexToString, StringIndexer, VectorIndexer
-
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-
-# This is not recongnized by IntelliJ!, but still works.
-from pyspark.sql.functions import col
 
 def main():
     _logger = logging.getLogger(__name__)
@@ -44,12 +34,6 @@ def main():
     tlos = df.select(df.columns[154:155])
     morbidity = df.select(df.columns[161:])
 
-    # morbidity_columns = morbidity.schema.names
-    # tlos_column = 'TLOS_CAT'
-    #
-    # print(morbidity_columns)
-    # tlos.show(5)
-
     RANDOM_SEED = 13579
     TRAINING_DATA_RATIO = 0.7
     RF_NUM_TREES = 3
@@ -64,6 +48,8 @@ def main():
 
     # This needs to be changed.
     transformed_df = df.select(df.columns[154:]).rdd.map(lambda row: LabeledPoint(row[0], Vectors.dense(row[5:-1])))
+
+    print(transformed_df.take(5))
 
     splits = [TRAINING_DATA_RATIO, 1.0 - TRAINING_DATA_RATIO]
     training_data, test_data = transformed_df.randomSplit(splits, RANDOM_SEED)
