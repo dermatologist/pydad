@@ -13,5 +13,7 @@ Try refining the model. PR welcome.
 
 ### Checkout [R package for DAD](https://github.com/E-Health/dadR)
 
-### Author
-[Bell Eapen](https://nuchange.ca) | McMaster U
+### Contributor(s)
+* [Bell Eapen](https://nuchange.ca) | McMaster U
+* This package is developed and tested using [Compute Canada](http://www.computecanada.ca) resources.
+
