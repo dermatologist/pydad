@@ -178,3 +178,16 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 
 ```
+
+https://stackoverflow.com/questions/43988801/pyspark-modify-column-values-when-another-column-value-satisfies-a-condition
+
+```
+from pyspark.sql.functions import *
+
+df\
+.withColumn('Id_New',when(df.Rank <= 5,df.Id).otherwise('other'))\
+.drop(df.Id)\
+.select(col('Id_New').alias('Id'),col('Rank'))\
+.show()
+
+```
