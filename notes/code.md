@@ -191,3 +191,7 @@ df\
 .show()
 
 ```
+
+## To explore
+
+* https://spark.apache.org/docs/latest/ml-classification-regression.html
