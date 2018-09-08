@@ -8,6 +8,8 @@ from pyspark.ml.classification import LogisticRegression
 # This is not recognized by IntelliJ!, but still works.
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql import SparkSession
+import mleap.pyspark
+from mleap.pyspark.spark_support import SimpleSparkSerializer
 
 from src.pydad import __version__
 from src.pydad.conf import ConfigParams
@@ -77,10 +79,10 @@ def main():
 
     # Predict
     predictions = lrModel.transform(test)
-    predictions.select('TLOS_CAT_NEW', 'rawPrediction', 'prediction', 'probability').show(100)
+    # predictions.select('TLOS_CAT_NEW', 'prediction').show(100)
 
     # Serialize
-    # pipelineModel.serializeToBundle("jar:file:/home/beapen/scratch/pyspark.example.zip", pipelineModel.transform(df))
+    pipelineModel.serializeToBundle("jar:file:/home/beapen/scratch/pyspark.example.zip", pipelineModel.transform(df))
 
     _logger.info("Script ends here")
     print(__version__)
