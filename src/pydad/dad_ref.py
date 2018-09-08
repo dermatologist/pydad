@@ -39,8 +39,9 @@ def main():
     # Read csv
     df = spark.read.csv(ConfigParams.__DAD_PATH__, header=True, inferSchema=True)
 
-    # Select TLOS and summary variables
-    df = df.select(df.columns[154:])
+    # Select TLOS and summary variables. As an example, we take only 10
+    # df = df.select(df.columns[154:])
+    df = df.select(df.columns[154:164])
 
     # String type converted to float type.
     # This is not required as all are Integer
@@ -61,25 +62,25 @@ def main():
 
     feature_assembler = VectorAssembler(inputCols=df.select(df.columns[6:]).schema.names, outputCol="features")
 
-    stages = []
-    stages += [feature_assembler]
-
-    pipeline = Pipeline(stages=stages)
-    pipelineModel = pipeline.fit(df)
-    df2 = pipelineModel.transform(df)
+    df = feature_assembler.transform(df)
 
     # Train and Test
-    train, test = df2.randomSplit([0.7, 0.3], seed=2018)
+    train, test = df.randomSplit([0.7, 0.3], seed=2018)
     print("Training Dataset Count: " + str(train.count()))
     print("Test Dataset Count: " + str(test.count()))
 
     lr = LogisticRegression(featuresCol='features', labelCol='TLOS_CAT_NEW', maxIter=10)
 
-    lrModel = lr.fit(train)
+    stages = []
+    stages += [lr]
+
+    pipeline = Pipeline(stages=stages)
+    pipelineModel = pipeline.fit(df)
+    predictions = pipelineModel.transform(df)
+
 
     # Predict
-    predictions = lrModel.transform(test)
-    # predictions.select('TLOS_CAT_NEW', 'prediction').show(100)
+    predictions.select('TLOS_CAT_NEW', 'prediction').show(100)
 
     # Serialize
     pipelineModel.serializeToBundle("jar:file:/home/beapen/scratch/pyspark.example.zip", pipelineModel.transform(df))
