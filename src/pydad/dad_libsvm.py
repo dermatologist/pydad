@@ -5,6 +5,7 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.util import MLUtils
 from pyspark.sql import SQLContext
 # This is not recognized by IntelliJ!, but still works.
 from pyspark.sql.functions import col
@@ -46,7 +47,8 @@ def main():
 
     print(transformed_df.take(5))
 
-    transformed_df.write.format("libsvm").save("/home/beapen/scratch/libsvm")
+    MLUtils.saveAsLibSVMFile(transformed_df, "/home/beapen/scratch/libsvm")
+    # transformed_df.write.format("libsvm").save("/home/beapen/scratch/libsvm")
 
     _logger.info("Script ends here")
     print(__version__)

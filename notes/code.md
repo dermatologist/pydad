@@ -195,3 +195,5 @@ df\
 ## To explore
 
 * https://spark.apache.org/docs/latest/ml-classification-regression.html
+
+ MultilayerPerceptronClassifier is available with pyspark.ml and it works with DataFrame only while pyspark.mllib works with RDD and MultilayerPerceptronClassifier is not available under mlLib (and it will never be), now I have to change the way I load the data in Spark ans load it as a dataframe
