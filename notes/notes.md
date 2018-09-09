@@ -23,3 +23,22 @@ export PYSPARK_SUBMIT_ARGS="--master local[2] pyspark-shell"
         getOrCreate()
 
 ``` 
+## Format of submission json
+```
+{
+  "schema": {
+    "fields": [{
+      "name": "diagnosis",
+      "type": "string"
+    }, {
+      "name": "bp",
+      "type": "double"
+    }, {
+      "name": "other",
+      "type": "string"
+    }]
+  },
+  "rows": [["Fever", 2.0, "strict"]]
+}
+
+```
