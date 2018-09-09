@@ -42,3 +42,5 @@ export PYSPARK_SUBMIT_ARGS="--master local[2] pyspark-shell"
 }
 
 ```
+
+docker run -d --name mleap -p 8080:65327 dpsdce/mleap-serving_optimized:latest
