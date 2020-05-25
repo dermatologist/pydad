@@ -35,3 +35,8 @@ class DadLoad(object):
     @property
     def full(self):
         return self._df
+
+    @property
+    def count(self):
+        index = self._dfs.index
+        return len(index)

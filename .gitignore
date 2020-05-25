@@ -5,6 +5,7 @@ src/pydad/resources
 *.sav
 *.csv
 *.dat
+conda
 
 # Temporary and binary files
 *~
