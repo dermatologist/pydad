@@ -1,6 +1,10 @@
 # My additions
 .venv
 .vscode
+src/pydad/resources
+*.sav
+*.csv
+*.dat
 
 # Temporary and binary files
 *~
