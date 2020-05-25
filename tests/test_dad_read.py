@@ -26,4 +26,8 @@ def test_read_comorbidity(dad_fixture, dad_read, capsys):
     dl = dad_fixture("/scratch/beapen/pydad/src/pydad/resources/", "dad201617c")
     dr = dad_read(dl.sample)
     print(dr.comorbidity('E66')) # Obesity
-    
+
+def test_read_interventions(dad_fixture, dad_read, capsys):
+    dl = dad_fixture("/scratch/beapen/pydad/src/pydad/resources/", "dad201617c")
+    dr = dad_read(dl.sample)
+    print(dr.interventions('1NF80')) # Partial gastrectomy for repair of gastric diverticulum
