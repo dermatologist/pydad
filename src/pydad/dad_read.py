@@ -25,6 +25,14 @@ class DadRead(object):
         return self.list_to_dict(l)
 
     def list_to_dict(self, list_of_lists):
+        """Flattens the list of lists and converts to key count dict
+
+        Arguments:
+            list_of_lists {[list]} -- [2D list]
+
+        Returns:
+            [dict] -- [key - count]
+        """
         flat_list = [item for sublist in list_of_lists for item in sublist]
         counts = dict()
         for i in flat_list:
