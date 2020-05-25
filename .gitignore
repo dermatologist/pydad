@@ -1,3 +1,7 @@
+# My additions
+.venv
+.vscode
+
 # Temporary and binary files
 *~
 *.py[cod]
