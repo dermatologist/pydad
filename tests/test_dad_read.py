@@ -16,3 +16,8 @@ def test_read_diagnosis(dad_fixture, dad_read, capsys):
     print(dr.has_diagnosis('E66')) # Obesity
     assert dr.count(dr.has_diagnosis('E66')) > 100
 
+def test_read_treatment(dad_fixture, dad_read, capsys):
+    dl = dad_fixture("/scratch/beapen/pydad/src/pydad/resources/", "dad201617c")
+    dr = dad_read(dl.sample)
+    print(dr.has_treatment('1NF80')) # Partial gastrectomy for repair of gastric diverticulum
+    assert dr.count(dr.has_treatment('1NF80')) > 10
