@@ -6,7 +6,7 @@
 # scipy==1.0
 
 # pyspark version should correspond to the spark version.
-pyspark==2.3.0
+pyspark==2.3.2
 findspark
 logging
 uuid
