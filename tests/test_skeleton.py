@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import pytest
@@ -6,7 +5,7 @@ from pydad.skeleton import fib
 
 __author__ = "dermatologist"
 __copyright__ = "dermatologist"
-__license__ = "none"
+__license__ = "mit"
 
 
 def test_fib():
