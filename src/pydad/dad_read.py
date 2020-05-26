@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np
 import functools
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DadRead(object):
 
@@ -8,6 +9,10 @@ class DadRead(object):
         self._df = df
         self._df['morbidities'] = self._df[['D_I10_{}'.format(i) for i in range(1, 25)]].values.tolist()
         self._df['interventions'] = self._df[['I_CCI_{}'.format(i) for i in range(1, 20)]].values.tolist()
+        self._demographics = self._df[['SUB_PROV', 'AGRP_F_D', 'GENDER', 'X_FR_I_T', 'ADM_CAT', 'ENT_CODE', 'X_TO_I_T', 'DIS_DISP', 'WGHT_GRP']]
+        self._los = self._df[['TLOS_CAT', 'ACT_LCAT', 'ALC_LCAT']]
+        self._los['TLOS_CAT_BIN'] = np.where(self._los['TLOS_CAT'] >=10, 1, 0)
+        self._mlb = MultiLabelBinarizer()
 
     def has_diagnosis(self, diagnosis):
         mask = functools.reduce(np.logical_or, [self._df['D_I10_{}'.format(i)].str.startswith(diagnosis) for i in range(1, 25)])
@@ -49,3 +54,28 @@ class DadRead(object):
     def count(df):
         index = df.index
         return len(index)
+
+    def vector(self, significant_chars=3, include_treatments=True):
+        morbidities = self._df[['D_I10_{}'.format(i) for i in range(1, 25)]].str[:significant_chars].values.tolist()
+        interventions = self._df[['I_CCI_{}'.format(i) for i in range(1, 20)]].str[:significant_chars].values.tolist()
+
+        disease_vector = self._mlb.fit_transform(morbidities .dropna())
+        # Column names of the dataframe are the class names of multilabel binarizer
+        disease_df = pd.DataFrame(data = disease_vector, columns=mlb.classes_)
+        treatment_vector = mlb.fit_transform(interventions.dropna())
+        treatment_df = pd.DataFrame(data = treatment_vector, columns=mlb.classes_)
+        if(include_treatments):
+            horizontal_stack = pd.concat([self._demographics, disease_df, treatment_df, self._los], axis=1)
+        else:
+            horizontal_stack = pd.concat([self._demographics, disease_df, self._los], axis=1)
+         # Remove the empty string and ZZZ
+        if(significant_chars>0):
+            z = 'Z' * flag
+            empty = ' ' * flag
+        else:
+            z = 'ZZZZZZ'
+            empty = "      "
+
+        horizontal_stack = horizontal_stack.drop(columns=z)
+        horizontal_stack = horizontal_stack.drop(columns=empty)
+        return horizontal_stack

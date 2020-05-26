@@ -18,3 +18,5 @@
 pandas
 pyreadstat
 pyarrow
+numpy
+sklearn
