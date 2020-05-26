@@ -52,9 +52,18 @@ class DadRead(object):
         return len(index)
 
 
-    def process_list(self, morb, chars):
-        #return map(str[:chars], morb)
-        return [ d[: chars] for d in morb]
+    def process_list(self, codes, chars):
+        """Process list of codes and substring number of chars
+
+        Arguments:
+            codes { [str] } -- List of ICD-10 or CCI codes
+            chars { int } -- Number of significant characters
+
+        Returns:
+            [str] -- List of ICD-10 or CCI codes
+        """
+        return [ d[: chars] for d in codes]
+        
 
     def vector(self, df, significant_chars=3, include_treatments=True):
         demographics = df[['SUB_PROV', 'AGRP_F_D', 'GENDER', 'X_FR_I_T', 'ADM_CAT', 'ENT_CODE', 'X_TO_I_T', 'DIS_DISP', 'WGHT_GRP']]
