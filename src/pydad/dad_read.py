@@ -9,10 +9,6 @@ class DadRead(object):
         self._df = df
         self._df['morbidities'] = self._df[['D_I10_{}'.format(i) for i in range(1, 25)]].values.tolist()
         self._df['interventions'] = self._df[['I_CCI_{}'.format(i) for i in range(1, 20)]].values.tolist()
-        self._demographics = self._df[['SUB_PROV', 'AGRP_F_D', 'GENDER', 'X_FR_I_T', 'ADM_CAT', 'ENT_CODE', 'X_TO_I_T', 'DIS_DISP', 'WGHT_GRP']]
-        self._los = self._df[['TLOS_CAT', 'ACT_LCAT', 'ALC_LCAT']]
-        self._los['TLOS_CAT_BIN'] = np.where(self._los['TLOS_CAT'] >=10, 1, 0)
-        self._mlb = MultiLabelBinarizer()
 
     def has_diagnosis(self, diagnosis):
         mask = functools.reduce(np.logical_or, [self._df['D_I10_{}'.format(i)].str.startswith(diagnosis) for i in range(1, 25)])
@@ -55,27 +51,46 @@ class DadRead(object):
         index = df.index
         return len(index)
 
-    def vector(self, significant_chars=3, include_treatments=True):
-        morbidities = self._df[['D_I10_{}'.format(i) for i in range(1, 25)]].str[:significant_chars].values.tolist()
-        interventions = self._df[['I_CCI_{}'.format(i) for i in range(1, 20)]].str[:significant_chars].values.tolist()
 
-        disease_vector = self._mlb.fit_transform(morbidities .dropna())
+    def process_list(self, morb, chars):
+        #return map(str[:chars], morb)
+        return [ d[: chars] for d in morb]
+
+    def vector(self, df, significant_chars=3, include_treatments=True):
+        demographics = df[['SUB_PROV', 'AGRP_F_D', 'GENDER', 'X_FR_I_T', 'ADM_CAT', 'ENT_CODE', 'X_TO_I_T', 'DIS_DISP', 'WGHT_GRP']]
+        los = df[['TLOS_CAT', 'ACT_LCAT', 'ALC_LCAT']]
+        los.insert(1, "TLOS_CAT_BIN", np.where(los['TLOS_CAT'] >=10, 1, 0), True)
+
+
+        # https://stackoverflow.com/questions/7984169/remove-trailing-newline-from-the-elements-of-a-string-list
+        # https://stackoverflow.com/questions/39523900/process-a-list-in-a-dataframe-column
+        selected_morbidities = df.apply(lambda x: self.process_list(x.morbidities, significant_chars), axis=1)
+        selected_interventions = df.apply(lambda x: self.process_list(x.interventions, significant_chars), axis=1)
+        df = pd.concat([df, selected_morbidities.to_frame(name='selected_morbidities')], 1)
+        df = pd.concat([df, selected_interventions.to_frame(name='selected_interventions')], 1)
+
+        mlb = MultiLabelBinarizer()
+        # Use df.selected_morbidities
+        disease_vector = mlb.fit_transform(df.selected_morbidities.dropna())
         # Column names of the dataframe are the class names of multilabel binarizer
         disease_df = pd.DataFrame(data = disease_vector, columns=mlb.classes_)
-        treatment_vector = mlb.fit_transform(interventions.dropna())
+        # Use df.selected_interventions
+        treatment_vector = mlb.fit_transform(df.selected_interventions.dropna())
         treatment_df = pd.DataFrame(data = treatment_vector, columns=mlb.classes_)
         if(include_treatments):
-            horizontal_stack = pd.concat([self._demographics, disease_df, treatment_df, self._los], axis=1)
+            horizontal_stack = pd.concat([demographics, disease_df, treatment_df, los], axis=1)
         else:
-            horizontal_stack = pd.concat([self._demographics, disease_df, self._los], axis=1)
+            horizontal_stack = pd.concat([demographics, disease_df, los], axis=1)
          # Remove the empty string and ZZZ
         if(significant_chars>0):
-            z = 'Z' * flag
-            empty = ' ' * flag
+            z = 'Z' * significant_chars
+            empty = ' ' * significant_chars
         else:
             z = 'ZZZZZZ'
             empty = "      "
 
-        horizontal_stack = horizontal_stack.drop(columns=z)
-        horizontal_stack = horizontal_stack.drop(columns=empty)
+        if z in horizontal_stack.columns:
+            horizontal_stack = horizontal_stack.drop(columns=z)
+        if empty in horizontal_stack.columns:
+            horizontal_stack = horizontal_stack.drop(columns=empty)
         return horizontal_stack
