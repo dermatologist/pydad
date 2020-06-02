@@ -1,5 +1,7 @@
 # pydad - Machine Learning with Discharge Abstract Database using python
 
+## Deprecated: Please use DADpy instead: https://github.com/E-Health/dadpy 
+
 ## About
 DAD is a CIHI database of hospital admissions. This is an experiment with the DAD enhanced dataset to create a RandomForest model for predicting the total length of hospital stay (TLOS) based on the derived CMG fields added by Western U.
 
